@@ -1,5 +1,6 @@
 import { ScoreLoader } from '@coderline/alphatab/importer/ScoreLoader';
 import { LayoutMode } from '@coderline/alphatab/LayoutMode';
+import { SustainPedalMarkerType } from '@coderline/alphatab/model/Bar';
 import { NotationElement } from '@coderline/alphatab/NotationSettings';
 import { BeatBarreEffectInfo } from '@coderline/alphatab/rendering/effects/BeatBarreEffectInfo';
 import { Settings } from '@coderline/alphatab/Settings';
@@ -205,6 +206,53 @@ describe('EffectsAndAnnotationsTests', () => {
                 settings
             )
         );
+    });
+
+    it('sustain-pedal-hooks', async () => {
+        const inputFile = 'issues/sustain-pedal-hooks.musicxml';
+        const wide = await VisualTestOptions.file(
+            inputFile,
+            [new VisualTestRun(1200, 'test-data/visual-tests/effects-and-annotations/sustain-pedal-hooks-wide.png')],
+            new Settings()
+        );
+        wide.settings.display.barsPerRow = 4;
+
+        const bars = wide.score.tracks[0].staves[0].bars;
+        expect(bars[0].sustainPedals.length).toBe(4);
+        expect(bars[0].sustainPedals[0].pedalType).toBe(SustainPedalMarkerType.Down);
+        expect(bars[0].sustainPedals[0].ratioPosition).toBe(0);
+        expect(bars[0].sustainPedals[1].pedalType).toBe(SustainPedalMarkerType.Up);
+        expect(bars[0].sustainPedals[1].ratioPosition).toBe(0.5);
+        expect(bars[0].sustainPedals[2].pedalType).toBe(SustainPedalMarkerType.Down);
+        expect(bars[0].sustainPedals[2].ratioPosition).toBe(0.5);
+        expect(bars[0].sustainPedals[3].pedalType).toBe(SustainPedalMarkerType.Up);
+        expect(bars[0].sustainPedals[3].ratioPosition).toBe(1);
+
+        expect(bars[1].sustainPedals.length).toBe(2);
+        expect(bars[1].sustainPedals[0].pedalType).toBe(SustainPedalMarkerType.Down);
+        expect(bars[1].sustainPedals[0].ratioPosition).toBe(0);
+        expect(bars[1].sustainPedals[1].pedalType).toBe(SustainPedalMarkerType.Up);
+        expect(bars[1].sustainPedals[1].ratioPosition).toBe(1);
+
+        expect(bars[2].sustainPedals.length).toBe(1);
+        expect(bars[2].sustainPedals[0].pedalType).toBe(SustainPedalMarkerType.Down);
+        expect(bars[2].sustainPedals[0].ratioPosition).toBe(0);
+
+        expect(bars[3].sustainPedals.length).toBe(2);
+        expect(bars[3].sustainPedals[0].pedalType).toBe(SustainPedalMarkerType.Hold);
+        expect(bars[3].sustainPedals[0].ratioPosition).toBe(0);
+        expect(bars[3].sustainPedals[1].pedalType).toBe(SustainPedalMarkerType.Up);
+        expect(bars[3].sustainPedals[1].ratioPosition).toBe(1);
+
+        await VisualTestHelper.runVisualTestFull(wide);
+
+        const narrow = await VisualTestOptions.file(
+            inputFile,
+            [new VisualTestRun(600, 'test-data/visual-tests/effects-and-annotations/sustain-pedal-hooks-narrow.png')],
+            new Settings()
+        );
+        narrow.settings.display.barsPerRow = 1;
+        await VisualTestHelper.runVisualTestFull(narrow);
     });
 
     it('dead-slap', async () => {

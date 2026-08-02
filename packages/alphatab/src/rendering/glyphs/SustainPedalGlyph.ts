@@ -26,7 +26,6 @@ export class SustainPedalGlyph extends EffectGlyph {
         const markers = renderer.bar.sustainPedals;
 
         const textWidth = this.renderer.smuflMetrics.glyphWidths.get(MusicFontSymbol.KeyboardPedalPed)!;
-        const starSize = this.renderer.smuflMetrics.glyphWidths.get(MusicFontSymbol.KeyboardPedalUp)!;
 
         let markerIndex = 0;
         while (markerIndex < markers.length) {
@@ -37,11 +36,25 @@ export class SustainPedalGlyph extends EffectGlyph {
                 // real own marker
                 let linePadding = 0;
                 if (marker.pedalType === SustainPedalMarkerType.Down) {
-                    CanvasHelper.fillMusicFontSymbolSafe(canvas,markerX, y + h, 1, MusicFontSymbol.KeyboardPedalPed, true);
-                    linePadding = textWidth / 2 + this.renderer.smuflMetrics.sustainPedalLinePadding;
+                    if (!this._isImmediateRepedal(markers, markerIndex, marker)) {
+                        CanvasHelper.fillMusicFontSymbolSafe(
+                            canvas,
+                            markerX,
+                            y + h,
+                            1,
+                            MusicFontSymbol.KeyboardPedalPed,
+                            true
+                        );
+                        linePadding = textWidth / 2 + this.renderer.smuflMetrics.sustainPedalLinePadding;
+                    }
                 } else if (marker.pedalType === SustainPedalMarkerType.Up) {
-                    CanvasHelper.fillMusicFontSymbolSafe(canvas,markerX, y + h, 1, MusicFontSymbol.KeyboardPedalUp, true);
-                    linePadding = starSize / 2 + this.renderer.smuflMetrics.sustainPedalLinePadding;
+                    const lineThickness = this.renderer.smuflMetrics.pedalLineThickness;
+                    canvas.fillRect(
+                        markerX - lineThickness / 2,
+                        y + h - this.renderer.smuflMetrics.oneStaffSpace,
+                        lineThickness,
+                        this.renderer.smuflMetrics.oneStaffSpace
+                    );
                 }
 
                 // line to next marker or end-of-bar
@@ -57,7 +70,7 @@ export class SustainPedalGlyph extends EffectGlyph {
                                 // no offset on hold
                                 break;
                             case SustainPedalMarkerType.Up:
-                                nextX -= starSize / 2;
+                                // the line ends at the release hook
                                 break;
                         }
 
@@ -89,5 +102,41 @@ export class SustainPedalGlyph extends EffectGlyph {
                 }
             }
         }
+    }
+
+    private _isImmediateRepedal(
+        markers: SustainPedalMarker[],
+        markerIndex: number,
+        marker: SustainPedalMarker
+    ): boolean {
+        if (marker.pedalType !== SustainPedalMarkerType.Down) {
+            return false;
+        }
+
+        if (markerIndex > 0) {
+            const sameBarPreviousMarker = markers[markerIndex - 1];
+            return (
+                sameBarPreviousMarker.pedalType === SustainPedalMarkerType.Up &&
+                sameBarPreviousMarker.ratioPosition === marker.ratioPosition
+            );
+        }
+
+        if (marker.ratioPosition !== 0 || !this.renderer.bar.previousBar) {
+            return false;
+        }
+
+        const previousMarkers = this.renderer.bar.previousBar.sustainPedals;
+        if (previousMarkers.length === 0) {
+            return false;
+        }
+
+        const previousBarMarker = previousMarkers[previousMarkers.length - 1];
+        const previousRenderer = this.renderer.previousRenderer;
+        return (
+            previousBarMarker.pedalType === SustainPedalMarkerType.Up &&
+            previousBarMarker.ratioPosition === 1 &&
+            previousRenderer !== null &&
+            previousRenderer.staff === this.renderer.staff
+        );
     }
 }
