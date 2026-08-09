@@ -889,7 +889,10 @@ export class BarRendererBase {
 
         this.voiceContainer.doLayout();
 
-        if (this.topEffects.isLinkedToPreviousRenderer || this.bottomEffects.isLinkedToPreviousRenderer) {
+        if (
+            this.topEffects.hasPartialSplitBlockingLinkToPreviousRenderer ||
+            this.bottomEffects.hasPartialSplitBlockingLinkToPreviousRenderer
+        ) {
             this.isLinkedToPrevious = true;
         }
     }

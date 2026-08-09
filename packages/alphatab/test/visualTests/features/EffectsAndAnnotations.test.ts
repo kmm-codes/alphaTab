@@ -2,6 +2,7 @@ import { ScoreLoader } from '@coderline/alphatab/importer/ScoreLoader';
 import { LayoutMode } from '@coderline/alphatab/LayoutMode';
 import { SustainPedalMarkerType } from '@coderline/alphatab/model/Bar';
 import { NotationElement } from '@coderline/alphatab/NotationSettings';
+import { ScoreRenderer } from '@coderline/alphatab/rendering/ScoreRenderer';
 import { BeatBarreEffectInfo } from '@coderline/alphatab/rendering/effects/BeatBarreEffectInfo';
 import { Settings } from '@coderline/alphatab/Settings';
 import { TestPlatform } from 'test/TestPlatform';
@@ -253,6 +254,98 @@ describe('EffectsAndAnnotationsTests', () => {
         );
         narrow.settings.display.barsPerRow = 1;
         await VisualTestHelper.runVisualTestFull(narrow);
+    });
+
+    it('sustain-pedal-multi-bar-continuation', async () => {
+        const settings = new Settings();
+        const score = ScoreLoader.loadAlphaTex(
+            `
+            \\tempo 120
+            \\track "pno."
+            :4 C4 { spd } C4 C4 C4 |
+            D4 D4 D4 D4 |
+            E4 E4 E4 E4 |
+            F4 F4 F4 F4 |
+            G4 G4 G4 G4 |
+            A4 A4 A4 A4 { spu }
+            `,
+            settings
+        );
+        score.stylesheet.hideDynamics = true;
+
+        const bars = score.tracks[0].staves[0].bars;
+        expect(bars).toHaveLength(6);
+        expect(bars[0].sustainPedals).toHaveLength(1);
+        expect(bars[0].sustainPedals[0].pedalType).toBe(SustainPedalMarkerType.Down);
+        for (let barIndex = 1; barIndex < 5; barIndex++) {
+            expect(bars[barIndex].sustainPedals).toHaveLength(1);
+            expect(bars[barIndex].sustainPedals[0].pedalType).toBe(SustainPedalMarkerType.Hold);
+            expect(bars[barIndex].sustainPedals[0].previousPedalMarker?.bar).toBe(bars[barIndex - 1]);
+            const previousMarkers = bars[barIndex - 1].sustainPedals;
+            expect(previousMarkers[previousMarkers.length - 1].nextPedalMarker?.bar).toBe(bars[barIndex]);
+        }
+        expect(bars[5].sustainPedals).toHaveLength(1);
+        expect(bars[5].sustainPedals[0].pedalType).toBe(SustainPedalMarkerType.Up);
+        expect(bars[5].sustainPedals[0].previousPedalMarker?.bar).toBe(bars[4]);
+
+        await VisualTestHelper.runVisualTestFull(
+            new VisualTestOptions(
+                score,
+                [
+                    new VisualTestRun(
+                        1200,
+                        'test-data/visual-tests/effects-and-annotations/sustain-pedal-multi-bar-wide.png'
+                    ),
+                    new VisualTestRun(
+                        600,
+                        'test-data/visual-tests/effects-and-annotations/sustain-pedal-multi-bar-narrow.png'
+                    )
+                ],
+                settings
+            )
+        );
+    });
+
+    it('sustain-pedal-does-not-block-horizontal-partials', () => {
+        const settings = new Settings();
+        settings.core.engine = 'svg';
+        settings.core.enableLazyLoading = false;
+        settings.display.layoutMode = LayoutMode.Horizontal;
+        settings.display.barCountPerPartial = 2;
+
+        const score = ScoreLoader.loadAlphaTex(
+            `
+            \\track "pno."
+            :4 C4 { spd } C4 C4 C4 |
+            D4 D4 D4 D4 |
+            E4 E4 E4 E4 |
+            F4 F4 F4 F4 |
+            G4 G4 G4 G4 |
+            A4 A4 A4 A4 { spu }
+            `,
+            settings
+        );
+        const renderer = new ScoreRenderer(settings);
+        renderer.width = 1200;
+        const partials: number[] = [];
+        let renderError: Error | null = null;
+        renderer.partialRenderFinished.on(result => partials.push(result.firstMasterBarIndex));
+        renderer.error.on(error => {
+            renderError = error;
+        });
+
+        renderer.renderScore(score, [0]);
+
+        // https://github.com/microsoft/TypeScript/issues/61313
+        renderError = renderError as Error | null;
+        if (renderError !== null) {
+            throw renderError;
+        }
+        expect(partials).toHaveLength(4);
+        expect(partials[0]).toBe(0);
+        expect(partials[1]).toBe(2);
+        expect(partials[2]).toBe(4);
+        expect(partials[3]).toBe(-1);
     });
 
     it('dead-slap', async () => {

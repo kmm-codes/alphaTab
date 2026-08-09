@@ -54,6 +54,14 @@ export class SustainPedalEffectInfo extends EffectInfo {
 
         return last.nextPedalMarker !== null && last.nextPedalMarker.bar !== fromBar;
     }
+
+    public override get preventsPartialSplit(): boolean {
+        // Every bar owns a FullBar glyph. SustainPedalGlyph paints a held line to the right edge
+        // and the next bar's hold marker paints from its left edge, so a render partial may end at
+        // any barline. Keep canExpand linkage for a common vertical placement, not for pagination.
+        return false;
+    }
+
     public override get placementCategory(): EffectBandPlacementCategory {
         return EffectBandPlacementCategory.Span;
     }

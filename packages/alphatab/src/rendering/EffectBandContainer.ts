@@ -62,9 +62,10 @@ export class EffectBandContainer {
               : this._renderer.previousRenderer!.bottomEffects;
     }
 
-    public get isLinkedToPreviousRenderer() {
+    public get hasPartialSplitBlockingLinkToPreviousRenderer(): boolean {
         for (let i = 0, n = this._bands.length; i < n; i++) {
-            if (this._bands[i].isLinkedToPrevious) {
+            const band = this._bands[i];
+            if (band.isLinkedToPrevious && band.info.preventsPartialSplit) {
                 return true;
             }
         }

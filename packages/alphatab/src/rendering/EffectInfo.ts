@@ -91,6 +91,15 @@ export abstract class EffectInfo {
      */
     public abstract canExpand(from: Beat, to: Beat): boolean;
 
+    /**
+     * Whether a link created by {@link canExpand} must keep horizontal-layout partials together.
+     * Most spanning effects cannot be cut without changing their paint chain. Full-bar effects
+     * that paint each bar independently can override this while retaining linked placement.
+     */
+    public get preventsPartialSplit(): boolean {
+        return true;
+    }
+
     /** Default {@link EffectBandPlacementCategory.NoteAttached} keeps unknown effects close to the staff. */
     public get placementCategory(): EffectBandPlacementCategory {
         return EffectBandPlacementCategory.NoteAttached;
