@@ -1,4 +1,5 @@
 import type { Beat } from '@coderline/alphatab/model/Beat';
+import { SustainPedalMarkerType } from '@coderline/alphatab/model/Bar';
 import { NotationElement } from '@coderline/alphatab/NotationSettings';
 import type { BarRendererBase } from '@coderline/alphatab/rendering/BarRendererBase';
 import { EffectBarGlyphSizing } from '@coderline/alphatab/rendering/EffectBarGlyphSizing';
@@ -31,8 +32,27 @@ export class SustainPedalEffectInfo extends EffectInfo {
         return new SustainPedalGlyph();
     }
 
-    public canExpand(_from: Beat, _to: Beat): boolean {
-        return true;
+    public canExpand(from: Beat, to: Beat): boolean {
+        const fromBar = from.voice.bar;
+        if (fromBar === to.voice.bar) {
+            return true;
+        }
+
+        // across a barline the band should only stay linked while the pedal is actually held down.
+        // returning true unconditionally kept every pedalled bar linked to its predecessor, which
+        // in the horizontal screen layout means a partial is never completed and the whole score
+        // ends up in a single oversized partial.
+        const markers = fromBar.sustainPedals;
+        if (markers.length === 0) {
+            return false;
+        }
+
+        const last = markers[markers.length - 1];
+        if (last.pedalType === SustainPedalMarkerType.Up) {
+            return false;
+        }
+
+        return last.nextPedalMarker !== null && last.nextPedalMarker.bar !== fromBar;
     }
     public override get placementCategory(): EffectBandPlacementCategory {
         return EffectBandPlacementCategory.Span;
