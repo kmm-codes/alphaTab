@@ -1,6 +1,6 @@
 {
     "name": "@coderline/alphatab-kotlin",
-    "version": "1.9.0-pmp.1",
+    "version": "1.9.0-pmp.2",
     "description": "The Kotlin target of alphaTab.",
     "private": true,
     "type": "module",
