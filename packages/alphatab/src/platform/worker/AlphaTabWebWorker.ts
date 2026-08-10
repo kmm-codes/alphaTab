@@ -80,6 +80,9 @@ export class AlphaTabWebWorker {
             case 'alphaTab.renderResult':
                 this._renderer.renderResult(data.resultId);
                 break;
+            case 'alphaTab.renderResultSlice':
+                this._renderer.renderResultSlice(data.resultId, data.offsetX, data.width, data.rasterScale);
+                break;
             case 'alphaTab.setWidth':
                 this._renderer.width = data.width;
                 break;

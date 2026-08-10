@@ -76,6 +76,16 @@ export class AlphaTabWorkerScoreRenderer<T> implements IScoreRenderer {
         });
     }
 
+    public renderResultSlice(resultId: string, offsetX: number, width: number, rasterScale?: number): void {
+        this._worker.postMessage({
+            cmd: 'alphaTab.renderResultSlice',
+            resultId: resultId,
+            offsetX: offsetX,
+            width: width,
+            rasterScale: rasterScale
+        });
+    }
+
     public get width(): number {
         return this._width;
     }

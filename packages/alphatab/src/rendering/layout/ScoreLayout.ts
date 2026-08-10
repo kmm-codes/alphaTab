@@ -27,6 +27,7 @@ import { RenderStaff } from '@coderline/alphatab/rendering/staves/RenderStaff';
 import { StaffSystem } from '@coderline/alphatab/rendering/staves/StaffSystem';
 import type { BeamingRuleLookup } from '@coderline/alphatab/rendering/utils/BeamingRuleLookup';
 import { ElementStyleHelper } from '@coderline/alphatab/rendering/utils/ElementStyleHelper';
+import { TranslatedCanvas } from '@coderline/alphatab/rendering/utils/TranslatedCanvas';
 import type { Settings } from '@coderline/alphatab/Settings';
 import { Lazy } from '@coderline/alphatab/util/Lazy';
 
@@ -154,6 +155,7 @@ export abstract class ScoreLayout {
         args.height *= scale;
         args.totalWidth *= scale;
         args.totalHeight *= scale;
+        args.rasterScale = scale;
 
         if (!this.renderer.settings.core.enableLazyLoading) {
             // in case of no lazy loading -> first notify about layout, then directly render
@@ -183,6 +185,55 @@ export abstract class ScoreLayout {
             const lazyPartial = this._lazyPartials.get(resultId)!;
             this._internalRenderLazyPartial(lazyPartial.args, lazyPartial.renderCallback);
         }
+    }
+
+    public renderLazyPartialSlice(resultId: string, offsetX: number, width: number, rasterScale?: number) {
+        if (!this._lazyPartials.has(resultId)) {
+            return;
+        }
+
+        const lazyPartial = this._lazyPartials.get(resultId)!;
+        const source = lazyPartial.args;
+        const sourceScale = this.renderer.settings.display.scale;
+        const targetScale = rasterScale ?? sourceScale;
+        if (
+            Number.isNaN(offsetX) ||
+            Number.isNaN(width) ||
+            offsetX < 0 ||
+            width <= 0 ||
+            offsetX + width > source.width ||
+            Number.isNaN(targetScale) ||
+            targetScale <= 0 ||
+            targetScale > sourceScale
+        ) {
+            throw new Error(`Invalid lazy partial slice ${offsetX}+${width} for ${source.width}px source`);
+        }
+
+        const canvas = this.renderer.canvas!;
+        const args = new RenderFinishedEventArgs();
+        args.id = `${source.id}:${offsetX}:${width}:${targetScale}`;
+        args.reuseViewport = source.reuseViewport;
+        args.x = source.x + offsetX;
+        args.y = source.y;
+        args.width = width;
+        args.height = source.height;
+        args.totalWidth = source.totalWidth;
+        args.totalHeight = source.totalHeight;
+        args.firstMasterBarIndex = source.firstMasterBarIndex;
+        args.lastMasterBarIndex = source.lastMasterBarIndex;
+        args.rasterScale = targetScale;
+
+        const targetWidth = (width / sourceScale) * targetScale;
+        const targetHeight = (source.height / sourceScale) * targetScale;
+        this.renderer.settings.display.scale = targetScale;
+        try {
+            canvas.beginRender(targetWidth, targetHeight);
+            lazyPartial.renderCallback(new TranslatedCanvas(canvas, -offsetX / sourceScale));
+            args.renderResult = canvas.endRender();
+        } finally {
+            this.renderer.settings.display.scale = sourceScale;
+        }
+        (this.renderer.partialRenderFinished as EventEmitterOfT<RenderFinishedEventArgs>).trigger(args);
     }
 
     protected abstract doLayoutAndRender(renderHints: RenderHints | undefined): void;

@@ -65,6 +65,14 @@ export class RenderFinishedEventArgs {
     public lastMasterBarIndex: number = -1;
 
     /**
+     * Gets or sets the pixel scale used for the render result.
+     * @remarks
+     * Layout coordinates remain in the scale advertised by the layout event. A renderer may use a
+     * lower value for an unusually large lazy partial while preserving its layout geometry.
+     */
+    public rasterScale: number = 0;
+
+    /**
      * Gets or sets the render engine specific result object which contains the rendered music sheet.
      */
     public renderResult: unknown = null;

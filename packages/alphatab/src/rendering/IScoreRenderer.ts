@@ -93,6 +93,18 @@ export interface IScoreRenderer {
     renderResult(resultId: string): void;
 
     /**
+     * Requests a horizontal pixel slice of a chunk which was laid out before.
+     * @param resultId the result ID as provided by the {@link partialLayoutFinished} event.
+     * @param offsetX the horizontal pixel offset inside the laid-out chunk.
+     * @param width the pixel width to render.
+     * @param rasterScale optional pixel scale for the target canvas. Layout coordinates stay unchanged.
+     * @remarks
+     * The original paint callback is replayed into a translated, clipped target canvas. This avoids
+     * allocating the full source bitmap for unusually wide chunks while preserving cross-bar effects.
+     */
+    renderResultSlice(resultId: string, offsetX: number, width: number, rasterScale?: number): void;
+
+    /**
      * Updates the settings to the given object.
      * @remarks
      * This method updates the settings to the given object. On some platforms like JavaScript

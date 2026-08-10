@@ -20,6 +20,7 @@ export type IAlphaTabWorkerMessage =
     | { cmd: 'alphaTab.render'; renderHints: RenderHints | undefined }
     | { cmd: 'alphaTab.resizeRender' }
     | { cmd: 'alphaTab.renderResult'; resultId: string }
+    | { cmd: 'alphaTab.renderResultSlice'; resultId: string; offsetX: number; width: number; rasterScale?: number }
     | { cmd: 'alphaTab.setWidth'; width: number }
     | {
           cmd: 'alphaTab.renderScore';

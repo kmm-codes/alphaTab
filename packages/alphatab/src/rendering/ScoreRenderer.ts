@@ -136,6 +136,23 @@ export class ScoreRenderer implements IScoreRenderer {
         }
     }
 
+    public renderResultSlice(resultId: string, offsetX: number, width: number, rasterScale?: number): void {
+        try {
+            const layout = this.layout;
+            if (layout) {
+                Logger.debug(
+                    'Rendering',
+                    `Request render of lazy partial slice ${resultId} at ${offsetX}+${width}`
+                );
+                layout.renderLazyPartialSlice(resultId, offsetX, width, rasterScale);
+            } else {
+                Logger.warning('Rendering', `Request render of lazy partial slice ${resultId} ignored, no layout exists`);
+            }
+        } catch (e) {
+            (this.error as EventEmitterOfT<Error>).trigger(e as Error);
+        }
+    }
+
     public render(renderHints?: RenderHints): void {
         Profiler.begin('render.total');
         if (this.width === 0) {

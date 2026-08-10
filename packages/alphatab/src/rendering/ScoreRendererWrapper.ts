@@ -108,6 +108,10 @@ export class ScoreRendererWrapper implements IScoreRenderer {
         this._instance?.renderResult(resultId);
     }
 
+    public renderResultSlice(resultId: string, offsetX: number, width: number, rasterScale?: number): void {
+        this._instance?.renderResultSlice(resultId, offsetX, width, rasterScale);
+    }
+
     public updateSettings(settings: Settings): void {
         this._settings = settings;
         this._instance?.updateSettings(settings);
