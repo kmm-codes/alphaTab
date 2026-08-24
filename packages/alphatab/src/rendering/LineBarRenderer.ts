@@ -671,6 +671,22 @@ export abstract class LineBarRenderer extends BarRendererBase {
         } else if (!hasSpaceAfterStartGlyphs) {
             this.addPreBeatGlyph(new SpacingGlyph(0, 0, this.smuflMetrics.oneStaffSpace));
         }
+
+        if (this.firstBeatPaddingWidth > 0) {
+            // Deliberately last in the pre-beat group: clef, key/time signature, bar number and
+            // their ordinary spacing stay before this empty lane. No musical model object exists.
+            this.addPreBeatGlyph(new SpacingGlyph(0, 0, this.firstBeatPaddingWidth));
+        }
+    }
+
+    /** @internal */
+    public override get firstBeatPaddingStart(): number {
+        return this.beatGlyphsStart - this.firstBeatPaddingWidth;
+    }
+
+    /** @internal */
+    public override get firstBeatPaddingWidth(): number {
+        return this.index === 0 ? Math.max(0, this.settings.display.firstBeatPaddingLeft) : 0;
     }
 
     public resolveClefDisplay(): ElementDisplay {

@@ -394,6 +394,18 @@ export class DisplaySettings {
     public firstStaffPaddingLeft: number = 6;
 
     /**
+     * The non-musical padding applied after the line-start clef, key signature and time signature
+     * and before the first beat of every staff system.
+     * @since 1.9.0
+     * @category Display
+     * @defaultValue `0`
+     * @remarks
+     * This padding reserves an empty overlay lane without adding a beat, note, bar or playback
+     * duration. It is applied only at the start of each rendered staff system.
+     */
+    public firstBeatPaddingLeft: number = 0;
+
+    /**
      * The left padding applied between the left line and the first glyph in the following staff in a system.
      * @since 1.4.0
      * @category Display

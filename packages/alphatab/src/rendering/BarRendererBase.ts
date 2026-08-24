@@ -910,6 +910,20 @@ export class BarRendererBase {
         return this.voiceContainer.x;
     }
 
+    /**
+     * Start of an optional non-musical lane immediately before the first beat.
+     * Renderers without such a lane report the beat-glyph start and a width of zero.
+     * @internal
+     */
+    public get firstBeatPaddingStart(): number {
+        return this.beatGlyphsStart;
+    }
+
+    /** Width of the optional non-musical lane before the first beat. @internal */
+    public get firstBeatPaddingWidth(): number {
+        return 0;
+    }
+
     public get postBeatGlyphsStart(): number {
         return this._postBeatGlyphs.x;
     }

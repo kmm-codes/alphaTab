@@ -51,6 +51,7 @@ export class DisplaySettingsSerializer {
         o.set("effectstaffpaddingtop", obj.effectStaffPaddingTop);
         o.set("effectstaffpaddingbottom", obj.effectStaffPaddingBottom);
         o.set("firststaffpaddingleft", obj.firstStaffPaddingLeft);
+        o.set("firstbeatpaddingleft", obj.firstBeatPaddingLeft);
         o.set("staffpaddingleft", obj.staffPaddingLeft);
         o.set("effectbandpaddingbottom", obj.effectBandPaddingBottom);
         o.set("trackstaffpaddingbetween", obj.trackStaffPaddingBetween);
@@ -140,6 +141,9 @@ export class DisplaySettingsSerializer {
                 return true;
             case "firststaffpaddingleft":
                 obj.firstStaffPaddingLeft = v! as number;
+                return true;
+            case "firstbeatpaddingleft":
+                obj.firstBeatPaddingLeft = v! as number;
                 return true;
             case "staffpaddingleft":
                 obj.staffPaddingLeft = v! as number;

@@ -21,6 +21,9 @@ export class BoundsLookup {
             const g = new Map<string, unknown>();
             g.set('visualBounds', BoundsLookup._boundsToJson(system.visualBounds));
             g.set('realBounds', BoundsLookup._boundsToJson(system.realBounds));
+            if (system.firstBeatPaddingBounds) {
+                g.set('firstBeatPaddingBounds', BoundsLookup._boundsToJson(system.firstBeatPaddingBounds));
+            }
             const gBars: Map<string, unknown>[] = [];
             g.set('bars', gBars);
 
@@ -80,6 +83,11 @@ export class BoundsLookup {
             const sg: StaffSystemBounds = new StaffSystemBounds();
             sg.visualBounds = BoundsLookup._boundsFromJson(staffSystem.get('visualBounds') as Map<string, unknown>);
             sg.realBounds = BoundsLookup._boundsFromJson(staffSystem.get('realBounds') as Map<string, unknown>);
+            if (staffSystem.has('firstBeatPaddingBounds')) {
+                sg.firstBeatPaddingBounds = BoundsLookup._boundsFromJson(
+                    staffSystem.get('firstBeatPaddingBounds') as Map<string, unknown>
+                );
+            }
             lookup.addStaffSystem(sg);
             for (const masterBar of staffSystem.get('bars') as Map<string, unknown>[]) {
                 const mb: MasterBarBounds = new MasterBarBounds();

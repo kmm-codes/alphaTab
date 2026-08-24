@@ -2,8 +2,8 @@
   <PropertyGroup>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <Version>1.9.0-pmp.6</Version>
-    <AssemblyVersion>1.9.0.6</AssemblyVersion>
+    <Version>1.9.0-pmp.7</Version>
+    <AssemblyVersion>1.9.0.7</AssemblyVersion>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Authors>Danielku15</Authors>
     <Company>CoderLine</Company>

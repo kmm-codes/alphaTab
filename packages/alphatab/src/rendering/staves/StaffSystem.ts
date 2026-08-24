@@ -1310,6 +1310,16 @@ export class StaffSystem {
         staffSystemBounds.realBounds.w = this.width;
         staffSystemBounds.realBounds.h = this.height;
 
+        const firstBarRenderer = firstStaff.barRenderers[0];
+        if (firstBarRenderer && firstBarRenderer.firstBeatPaddingWidth > 0) {
+            staffSystemBounds.firstBeatPaddingBounds = new Bounds();
+            staffSystemBounds.firstBeatPaddingBounds.x =
+                x + firstBarRenderer.x + firstBarRenderer.firstBeatPaddingStart;
+            staffSystemBounds.firstBeatPaddingBounds.y = lineTop;
+            staffSystemBounds.firstBeatPaddingBounds.w = firstBarRenderer.firstBeatPaddingWidth;
+            staffSystemBounds.firstBeatPaddingBounds.h = lineHeight;
+        }
+
         this.layout.renderer.boundsLookup!.addStaffSystem(staffSystemBounds);
         const masterBarBoundsLookup: Map<number, MasterBarBounds> = new Map<number, MasterBarBounds>();
         for (let i: number = 0; i < this.staves.length; i++) {

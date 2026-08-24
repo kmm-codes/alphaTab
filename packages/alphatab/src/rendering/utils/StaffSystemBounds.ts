@@ -24,6 +24,12 @@ export class StaffSystemBounds {
     public realBounds!: Bounds;
 
     /**
+     * Gets or sets the empty non-musical lane immediately before the first beat, or `null` when
+     * the renderer did not reserve one.
+     */
+    public firstBeatPaddingBounds: Bounds | null = null;
+
+    /**
      * Gets or sets the list of master bar bounds related to this staff system.
      */
     public bars: MasterBarBounds[] = [];
@@ -50,6 +56,7 @@ export class StaffSystemBounds {
         }
         this.realBounds.scaleWith(scale);
         this.visualBounds.scaleWith(scale);
+        this.firstBeatPaddingBounds?.scaleWith(scale);
 
         for (const t of this.bars) {
             t.finish(scale);
