@@ -32,6 +32,13 @@ export class BarBounds {
     public notationBounds!: Bounds;
 
     /**
+     * Gets the paint bounds of chord-name glyphs within this bar. These are deliberately separate
+     * from {@link notationBounds}: consumers that dim a staff can keep harmonic labels readable
+     * without leaving high notes, ledger lines, or beams undimmed.
+     */
+    public chordNameBounds: Bounds[] = [];
+
+    /**
      * Gets or sets the bar related to this boundaries.
      */
     public bar!: Bar;
@@ -75,6 +82,9 @@ export class BarBounds {
         this.realBounds.scaleWith(scale);
         this.visualBounds.scaleWith(scale);
         this.notationBounds.scaleWith(scale);
+        for (const chordNameBounds of this.chordNameBounds) {
+            chordNameBounds.scaleWith(scale);
+        }
 
         this.beats.sort((a, b) => a.realBounds.x - b.realBounds.x);
         for (const b of this.beats) {

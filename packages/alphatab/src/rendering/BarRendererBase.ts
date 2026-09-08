@@ -1,6 +1,7 @@
 import type { Bar } from '@coderline/alphatab/model/Bar';
 import type { Beat } from '@coderline/alphatab/model/Beat';
 import { MusicFontSymbol } from '@coderline/alphatab/model/MusicFontSymbol';
+import { NotationElement } from '@coderline/alphatab/NotationSettings';
 import type { Note } from '@coderline/alphatab/model/Note';
 import { SimileMark } from '@coderline/alphatab/model/SimileMark';
 import { type Voice, VoiceSubElement } from '@coderline/alphatab/model/Voice';
@@ -913,6 +914,28 @@ export class BarRendererBase {
         barBounds.notationBounds.y = cy + this.y - this._contentTopOverflow;
         barBounds.notationBounds.w = this.width;
         barBounds.notationBounds.h = this.height + this._contentTopOverflow + this._contentBottomOverflow;
+
+        // The whole top-effect band is not a usable exclusion rectangle: it includes the empty
+        // vertical space reserved for other markers. Publish the actual chord glyph boxes so an
+        // overlay can preserve chord names while still dimming any high notation behind them.
+        const topEffectBandY = cy + this.y - this.staff!.topOverflow;
+        for (const band of this.topEffects.bands) {
+            if (band.info.notationElement !== NotationElement.EffectChordNames) {
+                continue;
+            }
+            for (const glyphs of band.glyphsByVoice) {
+                for (const glyph of glyphs) {
+                    barBounds.chordNameBounds.push(
+                        new Bounds(
+                            cx + this.x + band.x + glyph.getBoundingBoxLeft(),
+                            topEffectBandY + band.y + glyph.getBoundingBoxTop(),
+                            glyph.getBoundingBoxRight() - glyph.getBoundingBoxLeft(),
+                            glyph.getBoundingBoxBottom() - glyph.getBoundingBoxTop()
+                        )
+                    );
+                }
+            }
+        }
 
         masterBarBounds.addBar(barBounds);
         this.voiceContainer.buildBoundingsLookup(barBounds, cx + this.x, cy + this.y);
