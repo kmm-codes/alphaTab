@@ -170,13 +170,16 @@ describe('BarLayoutingInfoPowerLawFormula', () => {
         expect(phiWhole / phi16).toBeCloseTo(Math.pow(r, 4), 4);
     });
 
-    it('r = 1.0 produces equal phi for all durations (degenerate baseline)', () => {
-        // Degenerate case: r=1 means `exponent = log2(1) = 0`, so phi = 1 for every duration.
-        // The clamp pulls r=1.0 up to 1.2 (the documented minimum), so this test verifies the
-        // *clamped* behavior - phi for r=1.0 should equal phi for r=1.2.
-        const phiAt1 = phiFromGap(240, 60, 1.0);
-        const phiAt12 = phiFromGap(240, 60, 1.2);
-        expect(phiAt1).toBeCloseTo(phiAt12, 6);
+    it('r = 1.0 is the proportional floor: phi = 1 for every duration', () => {
+        // r=1 means `exponent = log2(1) = 0`, so phi = 1 regardless of duration - width becomes
+        // exactly proportional to duration (springConstant = smallestDuration / duration).
+        // 1.0 is the lower end of the allowed range (not clamped away, PlayMorePiano's endless
+        // strip asks for exactly this), so this checks phi at several duration ratios, not just
+        // one against a since-removed clamp target.
+        expect(phiAtMinDuration(60, 1.0)).toBeCloseTo(1, 10);
+        expect(phiFromGap(120, 60, 1.0)).toBeCloseTo(1, 10);
+        expect(phiFromGap(240, 60, 1.0)).toBeCloseTo(1, 10);
+        expect(phiFromGap(960, 60, 1.0)).toBeCloseTo(1, 10);
     });
 
     it('sub-minimum duration produces phi < 1 (compression)', () => {
@@ -205,9 +208,13 @@ describe('BarLayoutingInfoPowerLawFormula', () => {
             expect(BarLayoutingInfo.spacingExponentFromRatio(2.0)).toBeCloseTo(1.0, 10);
         });
 
-        it('clamps r < 1.2 up to 1.2', () => {
-            expect(BarLayoutingInfo.spacingExponentFromRatio(1.0)).toBeCloseTo(Math.log2(1.2), 10);
-            expect(BarLayoutingInfo.spacingExponentFromRatio(0.5)).toBeCloseTo(Math.log2(1.2), 10);
+        it('returns exactly 0 at the proportional floor 1.0', () => {
+            expect(BarLayoutingInfo.spacingExponentFromRatio(1.0)).toBeCloseTo(0, 10);
+        });
+
+        it('clamps r < 1.0 up to 1.0', () => {
+            expect(BarLayoutingInfo.spacingExponentFromRatio(0.5)).toBeCloseTo(0, 10);
+            expect(BarLayoutingInfo.spacingExponentFromRatio(0)).toBeCloseTo(0, 10);
         });
 
         it('clamps r > 2.0 down to 2.0', () => {

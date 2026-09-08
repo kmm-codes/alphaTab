@@ -39,9 +39,17 @@ export class BarLayoutingInfo {
     private static readonly _defaultMinDuration: number = 30;
     private static readonly _defaultMinDurationWidth: number = 6.5;
 
-    // Valid range for `DisplaySettings.spacingRatio`. Outside this band the layout
-    // degenerates (collapse below 1.2, runaway above 2.0).
-    private static readonly _spacingRatioMin: number = 1.2;
+    // Valid range for `DisplaySettings.spacingRatio`. Above 2.0 the layout degenerates
+    // (runaway growth for long durations). The upstream default band was [1.2, 2.0]: below
+    // 1.2, DisplaySettings.spacingRatio's own doc calls 1.0 "equal spacing for all durations"
+    // and rejects it - a deliberate engraving-aesthetics choice (durations should look
+    // different in print), not a computed or mechanical limit. PlayMorePiano's endless strip
+    // is not print engraving; it is documented (IEngravedNotationRenderer.ResolveSpacing) as
+    // mandatorily time-proportional, i.e. exactly the exponent-0 case that ratio=1.0 gives.
+    // The floor is lowered to 1.0 - the exact proportional point - so that caller can reach it;
+    // every other caller keeps its own ratio (PlayMorePiano's reading score stays at the
+    // Math.SQRT2 default, unaffected).
+    private static readonly _spacingRatioMin: number = 1.0;
     private static readonly _spacingRatioMax: number = 2.0;
 
     /**
