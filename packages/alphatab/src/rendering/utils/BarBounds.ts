@@ -24,6 +24,14 @@ export class BarBounds {
     public realBounds!: Bounds;
 
     /**
+     * Gets or sets the bounds covering this bar's own notation overflow (ledger lines, stems,
+     * beams reaching above or below the staff lines), excluding the top and bottom effect bands
+     * (e.g. chord names, tempo markers, section marks). Unlike {@link visualBounds}, this rectangle
+     * never grows with effect content that is not part of the bar's own notation.
+     */
+    public notationBounds!: Bounds;
+
+    /**
      * Gets or sets the bar related to this boundaries.
      */
     public bar!: Bar;
@@ -66,6 +74,7 @@ export class BarBounds {
     public finish(scale: number = 1): void {
         this.realBounds.scaleWith(scale);
         this.visualBounds.scaleWith(scale);
+        this.notationBounds.scaleWith(scale);
 
         this.beats.sort((a, b) => a.realBounds.x - b.realBounds.x);
         for (const b of this.beats) {

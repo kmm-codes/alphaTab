@@ -904,6 +904,16 @@ export class BarRendererBase {
         barBounds.realBounds.w = this.width;
         barBounds.realBounds.h = this.height;
 
+        // Own notation overflow only (ledger lines, stems, beams), excluding the top/bottom
+        // effect bands: those are registered separately in topEffects/bottomEffects and must stay
+        // out so a consumer (e.g. a muted-staff overlay) can tell notation and effect content
+        // apart (#968).
+        barBounds.notationBounds = new Bounds();
+        barBounds.notationBounds.x = cx + this.x;
+        barBounds.notationBounds.y = cy + this.y - this._contentTopOverflow;
+        barBounds.notationBounds.w = this.width;
+        barBounds.notationBounds.h = this.height + this._contentTopOverflow + this._contentBottomOverflow;
+
         masterBarBounds.addBar(barBounds);
         this.voiceContainer.buildBoundingsLookup(barBounds, cx + this.x, cy + this.y);
     }

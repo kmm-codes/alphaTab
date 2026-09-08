@@ -70,6 +70,7 @@ describe('BoundsLookupPartialUpdate', () => {
                 bb.bar = bar;
                 bb.visualBounds = makeBounds(i * 100, systemStart * 200, 100, 100);
                 bb.realBounds = makeBounds(i * 100, systemStart * 200, 100, 200);
+                bb.notationBounds = makeBounds(i * 100, systemStart * 200, 100, 100);
                 mb.addBar(bb);
 
                 for (const beat of bar.voices[0].beats) {
@@ -175,6 +176,7 @@ describe('BoundsLookupPartialUpdate', () => {
             bb.bar = staff.bars[i];
             bb.visualBounds = makeBounds(i * 100, 200, 100, 100);
             bb.realBounds = makeBounds(i * 100, 200, 100, 200);
+            bb.notationBounds = makeBounds(i * 100, 200, 100, 100);
             mb.addBar(bb);
         }
 
