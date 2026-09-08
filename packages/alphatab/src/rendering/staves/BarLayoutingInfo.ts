@@ -560,6 +560,61 @@ export class BarLayoutingInfo {
         return -1;
     }
 
+    /**
+     * `true` when this bar carries at least one spring, i.e. a real time axis.
+     */
+    public get hasSprings(): boolean {
+        return this._timeSortedSprings.length > 0;
+    }
+
+    /**
+     * Distance from the spring chain's origin to the first onTime position. Together with the
+     * renderer's pre-beat glyph width this forms the bar's *head* - everything that stands to the
+     * left of the first note and therefore has to be subtracted when a bar is anchored on its
+     * first onTime rather than on its left edge.
+     */
+    public get firstSpringPreSpringWidth(): number {
+        return this._timeSortedSprings.length > 0 ? this._timeSortedSprings[0].preSpringWidth : 0;
+    }
+
+    /**
+     * The ink of the last spring, i.e. the space the final note of the bar occupies to the right of
+     * its own onTime position. Anything following it (bar line, bar number, clef of the next bar)
+     * has to stay clear of this.
+     */
+    public get lastSpringPostSpringWidth(): number {
+        return this._timeSortedSprings.length > 0
+            ? this._timeSortedSprings[this._timeSortedSprings.length - 1].postSpringWidth
+            : 0;
+    }
+
+    /**
+     * Spring constant of the last spring. Its allocation at a given force is `force / k`, which is
+     * the stretch of time between the bar's last onTime and the next bar's first onTime.
+     */
+    public get lastSpringConstant(): number {
+        return this._timeSortedSprings.length > 0
+            ? this._timeSortedSprings[this._timeSortedSprings.length - 1].springConstant
+            : 0;
+    }
+
+    /** Width consumed by grace rods that have no on-beat anchor of their own inside this bar. */
+    public get incompleteGraceRodsWidth(): number {
+        return this._incompleteGraceRodsWidth;
+    }
+
+    /**
+     * Total width of the spring chain at `force`, excluding the leading pre-spring width and the
+     * incomplete grace rods. This is the stretch of the bar that carries musical time, and the only
+     * quantity a time-proportional layout may advance by.
+     */
+    public springSpan(force: number): number {
+        if (this.totalSpringConstant === -1) {
+            return 0;
+        }
+        return this._calculateWidth(force, this.totalSpringConstant);
+    }
+
     public calculateVoiceWidth(force: number): number {
         let width = 0;
         if (this.totalSpringConstant !== -1) {

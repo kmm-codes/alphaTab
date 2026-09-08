@@ -1,6 +1,6 @@
 {
     "name": "@coderline/alphatab-monorepo",
-    "version": "1.9.0-pmp.8",
+    "version": "1.9.0-pmp.9",
     "description": "Monorepo for alphaTab and its related packages",
     "private": true,
     "type": "module",

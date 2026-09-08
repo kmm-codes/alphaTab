@@ -1,6 +1,7 @@
 import { Environment } from '@coderline/alphatab/Environment';
 import type { Beat } from '@coderline/alphatab/model/Beat';
 import { GraceType } from '@coderline/alphatab/model/GraceType';
+import { LayoutMode } from '@coderline/alphatab/LayoutMode';
 import { ModelUtils } from '@coderline/alphatab/model/ModelUtils';
 import type { Note } from '@coderline/alphatab/model/Note';
 import type { TupletGroup } from '@coderline/alphatab/model/TupletGroup';
@@ -70,6 +71,14 @@ export class MultiVoiceContainerGlyph extends Glyph {
     private _isCenteredFullBar(): boolean {
         // single spring which starts at start and spans the whole bar?
         // also ensure we do not have any grace notes
+        // Der Endlosstreifen ist eine Zeitachse. Eine ganztaktige Note mittig zu setzen verschiebt
+        // ihre onTime-Position um eine halbe Taktbreite nach rechts, und der Positionsmarker macht
+        // an genau dieser Stelle einen Sprung. Im horizontalen Layout bleibt sie deshalb auf ihrer
+        // Zeit stehen; in der Seitenansicht gilt die Satzregel (Behind Bars, S. 41) weiter (#390).
+        if (this.renderer.settings.display.layoutMode === LayoutMode.Horizontal) {
+            return false;
+        }
+
         const masterBar = this.renderer.bar.masterBar;
         const layoutingInfo = this.renderer.layoutingInfo;
         const springs = layoutingInfo.springs;

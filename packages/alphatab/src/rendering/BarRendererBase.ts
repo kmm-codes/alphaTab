@@ -360,7 +360,41 @@ export class BarRendererBase {
         return this._preBeatGlyphs.width + this._postBeatGlyphs.width;
     }
 
-    public scaleToWidth(width: number): void {
+    /** Fixed allocation left of the first note: bar line, bar number, clef, key and time signature. */
+    public get preBeatGlyphsWidth(): number {
+        return this._preBeatGlyphs.width;
+    }
+
+    /** Fixed allocation right of the last note: repeats, courtesy signatures, closing bar line. */
+    public get postBeatGlyphsWidth(): number {
+        return this._postBeatGlyphs.width;
+    }
+
+    /**
+     * Lays the bar out at an explicitly given stretch force instead of at a target width.
+     *
+     * {@link BarLayoutingInfo.calculateVoiceWidth} is the exact inverse of
+     * {@link BarLayoutingInfo.spaceToForce}, so routing through {@link scaleToWidth} reproduces
+     * `force` inside the voice container bit for bit. Used by the horizontal layout, which needs
+     * every bar of the strip laid out at the *same* force so that one tick is worth the same
+     * distance everywhere (#390).
+     */
+    public scaleToForce(force: number, advance: number = -1): void {
+        this.scaleToWidth(
+            this._preBeatGlyphs.width + this.layoutingInfo.calculateVoiceWidth(force) + this._postBeatGlyphs.width,
+            advance
+        );
+    }
+
+    /**
+     * `advance` (>= 0) decouples where the bar *ends* from how wide its content is. The horizontal
+     * layout anchors every bar on its own first note, so neighbouring bars overlap by the head of
+     * the later one - and the bar line between them belongs to the earlier bar's post-beat glyphs
+     * ({@link BarLineGlyph} skips the left line when the previous bar already draws the same right
+     * one). Left at the natural width, that line would be painted inside the next bar, on top of
+     * its first note. Passing the advance pulls the closing glyphs onto the seam (#390).
+     */
+    public scaleToWidth(width: number, advance: number = -1): void {
         // preBeat and postBeat glyphs do not get resized
         const containerWidth: number = width - this._preBeatGlyphs.width - this._postBeatGlyphs.width;
 
@@ -383,8 +417,13 @@ export class BarRendererBase {
             }
         }
 
-        this._postBeatGlyphs.x = this._preBeatGlyphs.x + this._preBeatGlyphs.width + containerWidth;
-        this.width = width;
+        if (advance >= 0) {
+            this._postBeatGlyphs.x = advance - this._postBeatGlyphs.width;
+            this.width = advance;
+        } else {
+            this._postBeatGlyphs.x = this._preBeatGlyphs.x + this._preBeatGlyphs.width + containerWidth;
+            this.width = width;
+        }
 
         // `EffectInfo.onAlignGlyphs` overrides must be max-of-idempotent;
         // shared `_sharedLayoutData` is reset per system in

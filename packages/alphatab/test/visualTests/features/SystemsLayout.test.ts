@@ -1,6 +1,6 @@
 import { describe, it } from 'vitest';
-import { SystemsLayoutMode } from '@coderline/alphatab/DisplaySettings';
 import { LayoutMode } from '@coderline/alphatab/LayoutMode';
+import { SystemsLayoutMode } from '@coderline/alphatab/DisplaySettings';
 import { Settings } from '@coderline/alphatab/Settings';
 import { ScoreLoader } from '@coderline/alphatab/importer/ScoreLoader';
 import { TestPlatform } from 'test/TestPlatform';
@@ -75,6 +75,9 @@ describe('SystemsLayoutTests', () => {
     it('horizontal-fixed-sizes-single-track', async () => {
         const settings = new Settings();
         settings.display.layoutMode = LayoutMode.Horizontal;
+        // A per-bar width and the strip's time axis are mutually exclusive; the model width
+        // only wins when the caller asks for it explicitly (#390).
+        settings.display.systemsLayoutMode = SystemsLayoutMode.UseModelLayout;
 
         const score = ScoreLoader.loadScoreFromBytes(
             await TestPlatform.loadFile('test-data/visual-tests/systems-layout/multi-track-different.gp')
@@ -101,6 +104,9 @@ describe('SystemsLayoutTests', () => {
     it('horizontal-fixed-sizes-two-tracks', async () => {
         const settings = new Settings();
         settings.display.layoutMode = LayoutMode.Horizontal;
+        // A per-bar width and the strip's time axis are mutually exclusive; the model width
+        // only wins when the caller asks for it explicitly (#390).
+        settings.display.systemsLayoutMode = SystemsLayoutMode.UseModelLayout;
         const score = ScoreLoader.loadScoreFromBytes(
             await TestPlatform.loadFile('test-data/visual-tests/systems-layout/multi-track-different.gp')
         );
