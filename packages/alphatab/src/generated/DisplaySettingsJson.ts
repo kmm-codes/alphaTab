@@ -64,7 +64,9 @@ export interface DisplaySettingsJson {
      * This setting is orthogonal to {@link stretchForce}: `spacingRatio` controls the *shape* of the spacing (proportions between durations),
      * `stretchForce` controls the overall *density* (how tightly or loosely the music is packed). Both can be adjusted independently.
      *
-     * Values are clamped to the range `[1.2, 2.0]`. A value of `1.0` would produce equal spacing for all durations and is rejected.
+     * Values are clamped to the range `[1.0, 2.0]`. A value of `1.0` produces equal spacing for all durations -
+     * exact time-proportional spacing - and is accepted; below it the ratio would compress long durations rather
+     * than merely space them tighter, which no caller of this fork asks for.
      */
     spacingRatio?: number;
     /**
