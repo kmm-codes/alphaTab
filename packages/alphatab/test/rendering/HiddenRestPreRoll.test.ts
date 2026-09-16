@@ -168,20 +168,22 @@ describe('HiddenRestPreRoll', () => {
   </part>
 </score-partwise>`;
         const result = await render(xml);
+        // Both leading bars are implicit (anacrusis), so alphaTab counts their ticks as 0 and the
+        // samples cannot be compared in tick terms. Measured in x instead: the hidden rest must be
+        // three quarters wide, the pickup one quarter, against the quarter width of the full bar.
         const pickup = result.samples.find(s => !s.isEmpty)!;
-        const firstFull = result.samples.find(s => s.barIndex === 2)!;
-        const preRoll = (pickup.x - result.samples[0].x) / (pickup.tick - result.samples[0].tick);
-        const music =
-            (result.samples[result.samples.length - 1].x - firstFull.x) /
-            (result.samples[result.samples.length - 1].tick - firstFull.tick);
+        const fullBar = result.samples.filter(s => s.barIndex === 2);
+        const quarter = (fullBar[fullBar.length - 1].x - fullBar[0].x) / (fullBar.length - 1);
+        const preRollQuarters = (pickup.x - result.samples[0].x) / quarter;
+        const pickupQuarters = (fullBar[0].x - pickup.x) / quarter;
         Logger.info(
             '#1020',
-            `pickup: preRollTicks=${pickup.tick} preRoll=${preRoll.toFixed(6)} music=${music.toFixed(6)} ratio=${(preRoll / music).toFixed(6)}`
+            `pickup: quarter=${quarter.toFixed(6)} preRollQuarters=${preRollQuarters.toFixed(6)} pickupQuarters=${pickupQuarters.toFixed(6)}`
         );
         expect(result.barIsEmpty[0]).toBe(true);
-        expect(pickup.tick).toBe(2880);
-        expect(firstFull.tick).toBe(3840);
-        expect(preRoll / music).toBeCloseTo(1, 2);
+        expect(fullBar.length).toBe(4);
+        expect(preRollQuarters).toBeCloseTo(3, 2);
+        expect(pickupQuarters).toBeCloseTo(1, 2);
     });
 
     it('keeps the slope over two hidden pre-roll bars', async () => {
