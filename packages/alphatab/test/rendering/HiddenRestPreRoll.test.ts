@@ -1,3 +1,9 @@
+/**
+ * Layout measurement for PlayMorePiano #1020. The PlayMorePiano adapter exercises the generated
+ * C# API separately; this file is web-only so the C# transpiler skips its object literals.
+ *
+ * @target web
+ */
 import { ScoreLoader } from '@coderline/alphatab/importer/ScoreLoader';
 import { LayoutMode } from '@coderline/alphatab/LayoutMode';
 import { Logger } from '@coderline/alphatab/Logger';
