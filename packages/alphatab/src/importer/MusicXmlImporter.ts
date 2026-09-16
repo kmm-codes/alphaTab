@@ -2763,6 +2763,13 @@ export class MusicXmlImporter extends ScoreImporter {
         // if not yet created do it befor we exit to ensure we created the beat/note
         ensureBeat();
 
+        if (note === null && !noteIsVisible) {
+            // A rest with print-object="no" keeps its time and draws nothing: the same form as the
+            // invisible placeholder beat this importer creates for gaps (isEmpty, duration kept).
+            // PlayMorePiano writes the empty count-in bars of a practice strip this way (#1020).
+            beat!.isEmpty = true;
+        }
+
         if (note !== null) {
             // Final note post-processing depends on the note already being attached to the
             // beat/voice/bar/staff tree (e.g. percussion clef context on the resolved staff).
