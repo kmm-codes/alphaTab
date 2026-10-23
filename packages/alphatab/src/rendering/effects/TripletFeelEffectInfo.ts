@@ -41,6 +41,10 @@ export class TripletFeelEffectInfo extends EffectInfo {
     public canExpand(_from: Beat, _to: Beat): boolean {
         return true;
     }
+    public override get isScoreWide(): boolean {
+        return true;
+    }
+
     public override get placementCategory(): EffectBandPlacementCategory {
         return EffectBandPlacementCategory.SystemMarker;
     }

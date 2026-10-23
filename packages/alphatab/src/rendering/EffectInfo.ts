@@ -105,6 +105,18 @@ export abstract class EffectInfo {
         return EffectBandPlacementCategory.NoteAttached;
     }
 
+    /**
+     * Whether the glyphs of this effect describe the whole score rather than the beat they are
+     * attached to: tempo, section markers, chord names, directions, alternate endings, free time and
+     * triplet feel. alphaTab hangs them on a beat (usually the first beat of the first staff) only to
+     * place them, so that beat's `BeatSubElement.Effects` colour must not colour them - a
+     * coloured hand in a piano score would otherwise take the tempo mark with it. Such glyphs paint
+     * in the band's default glyph colour (PlayMorePiano #1072).
+     */
+    public get isScoreWide(): boolean {
+        return false;
+    }
+
     /** When `true`, the band feeds each beat-glyph's paint extent into the rhythmic-spacing solver. */
     public get contributesToBeatSpacing(): boolean {
         return false;

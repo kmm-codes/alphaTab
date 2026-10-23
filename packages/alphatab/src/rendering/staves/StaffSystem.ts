@@ -16,7 +16,6 @@ import { CanvasHelper, type ICanvas, TextAlign, TextBaseline } from '@coderline/
 import { Profiler } from '@coderline/alphatab/profiling/Profiler';
 import type { RenderingResources } from '@coderline/alphatab/RenderingResources';
 import type { BarRendererBase } from '@coderline/alphatab/rendering/BarRendererBase';
-import type { LineBarRenderer } from '@coderline/alphatab/rendering/LineBarRenderer';
 import type { ScoreLayout } from '@coderline/alphatab/rendering/layout/ScoreLayout';
 import { TabBarRenderer } from '@coderline/alphatab/rendering/TabBarRenderer';
 import { InlineTuningGlyph } from '@coderline/alphatab/rendering/glyphs/InlineTuningGlyph';
@@ -1068,12 +1067,14 @@ export class StaffSystem {
 
                         const accoladeX: number = cx + previousStaffInBracket.x;
 
-                        const firstLineBarRenderer = previousStaffInBracket.barRenderers[0] as LineBarRenderer;
-
-                        using _ = ElementStyleHelper.bar(
+                        // The line joins two staves, so it belongs to the system like the brace,
+                        // not to the staff above it: a coloured staff must not colour the joint
+                        // into the next one (PlayMorePiano #1072). Unstyled, the canvas still holds
+                        // the bar separator colour set for the start grouping above.
+                        using _ = ElementStyleHelper.track(
                             canvas,
-                            firstLineBarRenderer.staffLineBarSubElement,
-                            firstLineBarRenderer.bar
+                            TrackSubElement.BracesAndBrackets,
+                            previousStaffInBracket.modelStaff.track
                         );
                         const h = Math.ceil(thisTop - previousBottom);
                         canvas.fillRect(accoladeX, cy + previousBottom, res.engravingSettings.thinBarlineThickness, h);

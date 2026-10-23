@@ -52,6 +52,10 @@ export class AlternateEndingsEffectInfo extends EffectInfo {
     public canExpand(_from: Beat, _to: Beat): boolean {
         return true;
     }
+    public override get isScoreWide(): boolean {
+        return true;
+    }
+
     public override get placementCategory(): EffectBandPlacementCategory {
         // Voltas share one baseline across the system (Gould Ch.11).
         return EffectBandPlacementCategory.HorizontalRow;

@@ -40,6 +40,10 @@ export class DirectionsEffectInfo extends EffectInfo {
         // Each bar's directions are independent — no cross-bar chain to share a y.
         return false;
     }
+    public override get isScoreWide(): boolean {
+        return true;
+    }
+
     public override get placementCategory(): EffectBandPlacementCategory {
         return EffectBandPlacementCategory.SystemMarker;
     }

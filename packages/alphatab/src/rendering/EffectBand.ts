@@ -376,8 +376,14 @@ export class EffectBand extends Glyph {
             const v: EffectGlyph[] = this._uniqueEffectGlyphs[i];
             for (let k: number = 0, l: number = v.length; k < l; k++) {
                 const g: EffectGlyph = v[k];
-                using _ = ElementStyleHelper.beat(canvas, BeatSubElement.Effects, g.beat!, false);
-                g.paint(cx + this.x, cy + this.y, canvas);
+                if (this.info.isScoreWide) {
+                    // Hung on a beat only for placement; the beat's colour is not the glyph's
+                    // (PlayMorePiano #1072).
+                    g.paint(cx + this.x, cy + this.y, canvas);
+                } else {
+                    using _ = ElementStyleHelper.beat(canvas, BeatSubElement.Effects, g.beat!, false);
+                    g.paint(cx + this.x, cy + this.y, canvas);
+                }
             }
         }
     }
